@@ -82,130 +82,97 @@
 
     <!-- Bootstrap JS and Popper.js -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    
-    <script>
-        function previewImage() {
-            const input = document.getElementById('image');
-            const preview = document.getElementById('imagePreview');
-            const imageSizeDisplay = document.getElementById('imageSizeDisplay');
-    
-            const file = input.files[0];
-            const reader = new FileReader();
-    
-            reader.onload = function (e) {
-                preview.src = e.target.result;
-                imageSizeDisplay.textContent = `Image Size: ${formatBytes(file.size)}`;
-            };
-    
-            reader.readAsDataURL(file);
-        }
-    
-        function uploadTestpoint() {
-            const brandId = document.getElementById('brand').value;
-            const modelName = document.getElementById('modelName').value;
-            const source = document.getElementById('source').value;
-    
-            // Use FormData to handle the file upload
-            const formData = new FormData();
-            formData.append('image', document.getElementById('image').files[0]);
-    
-            // Use ImgBB API to upload the image
-            fetch(`https://api.imgbb.com/1/upload?key=861a231ffcebc40c9d35e1693aae1d42`, {
-                method: 'POST',
-                body: formData,
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const imageUrl = data.data.url;
-    
-                    // Display the uploaded image
-                    const preview = document.getElementById('imagePreview');
-                    preview.src = imageUrl;
-                    preview.style.display = 'block';  // Show the preview
-    
-                    // Continue with your testpoint upload logic, passing the imageUrl where needed
-                    console.log('Image URL:', imageUrl);
-    
-                    // Now, you can proceed with the rest of your testpoint upload logic
-                    // ...
-    
-                    // Continue with your existing Baserow API upload logic
-    
-                    // Send data to the Baserow server
-                    const baseUrl = 'https://api.baserow.io/api/database/rows/table/';
-                    const endpoint = baseUrl + brandId + '/?user_field_names=true';
-    
-                    return fetch(endpoint, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Token R0hoE2thbSi4PWpxOUPHDFrdCmMKmU4A',
-                        },
-                        body: JSON.stringify({
-                            "Model": modelName,
-                            "Image": imageUrl,  // Updated to use the ImgBB image URL
-                            "Source": source,
-                        }),
-                    });
-                } else {
-                    alert(`Error uploading image: ${data.status}`);
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Handle the response from the server
-                console.log('Success:', data);
-                // Optionally, provide feedback to the user
-                alert('Testpoint uploaded successfully!');
-            })
-            .catch((error) => {
-                console.error('Error:', error.message);
-                // Provide feedback to the user based on the error
-                alert(getErrorMessage(error.message));
-            });
-        }
-    
-        function getErrorMessage(errorMessage) {
-            switch (errorMessage) {
-                case 'HTTP error! Status: 400':
-                    return 'Bad request. The request contains invalid values or the JSON could not be parsed.';
-                case 'HTTP error! Status: 401':
-                    return 'Unauthorized. Please check your database token.';
-                case 'HTTP error! Status: 404':
-                    return 'Not found. Row or table is not found.';
-                case 'HTTP error! Status: 413':
-                    return 'Request Entity Too Large. The request exceeded the maximum allowed payload size.';
-                case 'HTTP error! Status: 500':
-                    return 'Internal Server Error. The server encountered an unexpected condition.';
-                case 'HTTP error! Status: 502':
-                    return 'Bad gateway. Baserow is restarting or an unexpected outage is in progress.';
-                case 'HTTP error! Status: 503':
-                    return 'Service unavailable. The server could not process your request in time.';
-                default:
-                    return 'An unexpected error occurred.';
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<script>
+    function uploadTestpoint() {
+        const brandId = document.getElementById('brand').value;
+        const modelName = document.getElementById('modelName').value;
+        const source = document.getElementById('source').value;
+
+        // Use FormData to handle the file upload
+        const formData = new FormData();
+        formData.append('image', document.getElementById('image').files[0]);
+
+        // Use ImgBB API to upload the image
+        fetch(`https://api.imgbb.com/1/upload?key=861a231ffcebc40c9d35e1693aae1d42`, {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const imageUrl = data.data.url;
+
+                // Continue with your testpoint upload logic, passing the imageUrl where needed
+                console.log('Image URL:', imageUrl);
+
+                // Now, you can proceed with the rest of your testpoint upload logic
+                // ...
+
+                // Continue with your existing Baserow API upload logic
+
+                // Send data to the Baserow server
+                const baseUrl = 'https://api.baserow.io/api/database/rows/table/';
+                const endpoint = baseUrl + brandId + '/?user_field_names=true';
+
+                return fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Token R0hoE2thbSi4PWpxOUPHDFrdCmMKmU4A',
+                    },
+                    body: JSON.stringify({
+                        "Model": modelName,
+                        "Image": imageUrl,  // Updated to use the ImgBB image URL
+                        "Source": source,
+                    }),
+                });
+            } else {
+                alert(`Error uploading image: ${data.status}`);
             }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Handle the response from the server
+            console.log('Success:', data);
+            // Optionally, provide feedback to the user
+            alert('Testpoint uploaded successfully!');
+        })
+        .catch((error) => {
+            console.error('Error:', error.message);
+            // Provide feedback to the user based on the error
+            alert(getErrorMessage(error.message));
+        });
+    }
+
+    function getErrorMessage(errorMessage) {
+        switch (errorMessage) {
+            case 'HTTP error! Status: 400':
+                return 'Bad request. The request contains invalid values or the JSON could not be parsed.';
+            case 'HTTP error! Status: 401':
+                return 'Unauthorized. Please check your database token.';
+            case 'HTTP error! Status: 404':
+                return 'Not found. Row or table is not found.';
+            case 'HTTP error! Status: 413':
+                return 'Request Entity Too Large. The request exceeded the maximum allowed payload size.';
+            case 'HTTP error! Status: 500':
+                return 'Internal Server Error. The server encountered an unexpected condition.';
+            case 'HTTP error! Status: 502':
+                return 'Bad gateway. Baserow is restarting or an unexpected outage is in progress.';
+            case 'HTTP error! Status: 503':
+                return 'Service unavailable. The server could not process your request in time.';
+            default:
+                return 'An unexpected error occurred.';
         }
-    
-        function formatBytes(bytes, decimals = 2) {
-            if (bytes === 0) return '0 Bytes';
-    
-            const k = 1024;
-            const dm = decimals < 0 ? 0 : decimals;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-    
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-    
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-        }
-    </script>
+    }
+</script>
     
 </body>
 </html>
